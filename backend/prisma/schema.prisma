@@ -5,3 +5,51 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  bio       String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tweets Tweet[]
+  likes  Like[]
+
+  following Follow[] @relation("follower")
+  followers Follow[] @relation("following")
+}
+
+model Tweet {
+  id        String   @id @default(uuid())
+  content   String   @db.VarChar(280)
+  userId    String
+  createdAt DateTime @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes Like[]
+}
+
+model Like {
+  id      String @id @default(uuid())
+  userId  String
+  tweetId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tweet Tweet @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tweetId])
+}
+
+model Follow {
+  followerId  String
+  followingId String
+
+  follower  User @relation("follower", fields: [followerId], references: [id])
+  following User @relation("following", fields: [followingId], references: [id])
+
+  @@id([followerId, followingId])
+}
