@@ -11,8 +11,9 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith('Bearer ')) {
-    res.status(401).json({ message: 'Unauthorized: No token provided' });
-    return;
+    const err = new Error('Unauthorized: No token provided');
+    (err as any).status = 401;
+    return next(err);
   }
 
   const token = authHeader.split(' ')[1];
@@ -22,7 +23,8 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     req.userId = decoded.userId;
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Unauthorized: Invalid token' });
-    return;
+    const err = new Error('Unauthorized: Invalid token');
+    (err as any).status = 401;
+    next(err);
   }
 };

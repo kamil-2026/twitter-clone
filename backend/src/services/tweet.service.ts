@@ -117,7 +117,7 @@ export const deleteTweet = async (tweetId: string, userId: string) => {
   }
 
   if (tweet.userId !== userId) {
-    const err = new Error('Unauthorized');
+    const err = new Error('Forbidden: You do not own this tweet');
     (err as any).status = 403;
     throw err;
   }

@@ -14,12 +14,6 @@ export const createTweetHandler = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    if (!req.body || Object.keys(req.body).length === 0) {
-      const err = new Error('Request body is required');
-      (err as any).status = 400;
-      throw err;
-    }
-
     const userId = req.userId as string;
     const input = tweetSchema.parse(req.body);
     const tweet = await createTweet(userId, input);

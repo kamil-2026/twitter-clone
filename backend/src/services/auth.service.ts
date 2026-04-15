@@ -30,29 +30,44 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 
 export const register = async (data: RegisterInput) => {
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [{ email: data.email }, { username: data.username }],
+    },
+  });
+
+  if (existingUser) {
+    const isEmailTaken = existingUser.email === data.email;
+    const isUsernameTaken = existingUser.username === data.username;
+
+    let message = '';
+    if (isEmailTaken && isUsernameTaken) {
+      message = 'Email and username already exist';
+    } else if (isEmailTaken) {
+      message = 'Email already exists';
+    } else {
+      message = 'Username already exists';
+    }
+
+    const err = new Error(message);
+    (err as any).status = 400;
+    throw err;
+  }
+
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
-  try {
-    return await prisma.user.create({
-      data: {
-        email: data.email,
-        username: data.username,
-        password: hashedPassword,
-      },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-      },
-    });
-  } catch (error: any) {
-    if (error.code === 'P2002') {
-      const err = new Error('Email or username already exists');
-      (err as any).status = 400;
-      throw err;
-    }
-    throw error;
-  }
+  return prisma.user.create({
+    data: {
+      email: data.email,
+      username: data.username,
+      password: hashedPassword,
+    },
+    select: {
+      id: true,
+      email: true,
+      username: true,
+    },
+  });
 };
 
 export const login = async (data: LoginInput) => {
