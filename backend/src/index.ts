@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 
 import authRoutes from '@/routes/auth.route';
+import { globalErrorHandler } from '@/middleware/error.middleware';
 
 dotenv.config({ path: '../.env' });
 
@@ -21,6 +22,8 @@ app.use('/api/auth', authRoutes);
 app.get('/', (req, res) => {
   res.json({ message: 'twitter clone' });
 });
+
+app.use(globalErrorHandler);
 
 app.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`);
