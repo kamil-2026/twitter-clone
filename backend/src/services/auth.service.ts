@@ -26,7 +26,7 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.string({ message: 'Email is required' }).email('Invalid email format'),
+  identifier: z.string({ message: 'Email or username is required' }),
   password: z.string({ message: 'Password is required' }),
 });
 
@@ -84,9 +84,12 @@ export const register = async (data: RegisterInput) => {
 };
 
 export const login = async (data: LoginInput) => {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: {
-      email: data.email,
+      OR: [
+        { email: data.identifier },
+        { username: data.identifier },
+      ],
     },
   });
 
