@@ -11,8 +11,12 @@ model User {
   email     String   @unique
   username  String   @unique
   password  String
+  name      String?
   bio       String?
   avatar    String?
+  banner    String?
+  location  String?
+  website   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

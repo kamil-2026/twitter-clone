@@ -3,15 +3,16 @@ import prisma from '@/lib/db';
 export const searchUsers = async (query: string, limit = 10) => {
   const users = await prisma.user.findMany({
     where: {
-      username: {
-        contains: query,
-        mode: 'insensitive',
-      },
+      OR: [
+        { username: { contains: query, mode: 'insensitive' } },
+        { name: { contains: query, mode: 'insensitive' } },
+      ],
     },
     take: limit,
     select: {
       id: true,
       username: true,
+      name: true,
       avatar: true,
       _count: {
         select: {
@@ -24,6 +25,7 @@ export const searchUsers = async (query: string, limit = 10) => {
   return users.map((u) => ({
     id: u.id,
     username: u.username,
+    name: u.name,
     avatar: u.avatar,
     followers: u._count.followers,
   }));
@@ -37,7 +39,12 @@ export const getUserProfile = async (identifier: string) => {
     select: {
       id: true,
       username: true,
+      name: true,
       avatar: true,
+      banner: true,
+      bio: true,
+      location: true,
+      website: true,
       createdAt: true,
       _count: {
         select: {
@@ -73,7 +80,12 @@ export const getUserProfile = async (identifier: string) => {
   return {
     id: user.id,
     username: user.username,
+    name: user.name,
     avatar: user.avatar,
+    banner: user.banner,
+    bio: user.bio,
+    location: user.location,
+    website: user.website,
     joinedAt: user.createdAt,
     stats: {
       followers: user._count.followers,

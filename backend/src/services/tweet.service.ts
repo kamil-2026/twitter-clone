@@ -24,6 +24,7 @@ export const createTweet = async (userId: string, data: TweetInput) => {
         select: {
           id: true,
           username: true,
+          name: true,
           avatar: true,
         },
       },
@@ -44,6 +45,7 @@ export const getTweets = async () => {
         select: {
           id: true,
           username: true,
+          name: true,
           avatar: true,
         },
       },
@@ -77,6 +79,7 @@ export const getTweetById = async (id: string) => {
         select: {
           id: true,
           username: true,
+          name: true,
           avatar: true,
         },
       },
@@ -158,6 +161,7 @@ export const getHomeFeed = async (userId: string) => {
         select: {
           id: true,
           username: true,
+          name: true,
           avatar: true,
         },
       },

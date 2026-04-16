@@ -16,6 +16,10 @@ export const registerSchema = z.object({
     .min(4, 'Username must be at least 4 characters')
     .max(15, 'Username cannot exceed 15 characters')
     .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
+  name: z
+    .string({ message: 'Name is required' })
+    .min(1, 'Name is required')
+    .max(50, 'Name cannot exceed 50 characters'),
   password: z
     .string({ message: 'Password is required' })
     .min(8, 'Password must be at least 8 characters'),
@@ -60,12 +64,14 @@ export const register = async (data: RegisterInput) => {
     data: {
       email: data.email,
       username: data.username,
+      name: data.name,
       password: hashedPassword,
     },
     select: {
       id: true,
       email: true,
       username: true,
+      name: true,
     },
   });
 };
@@ -89,6 +95,7 @@ export const login = async (data: LoginInput) => {
     user: {
       id: user.id,
       username: user.username,
+      name: user.name,
       email: user.email,
     },
     token,
