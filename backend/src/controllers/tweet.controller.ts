@@ -1,6 +1,14 @@
 import type { NextFunction, Response } from 'express';
 import type { AuthRequest } from '@/middleware/auth.middleware';
-import { createTweet, deleteTweet, getHomeFeed, getTweetById, getTweets, tweetSchema, } from '@/services/tweet.service';
+import {
+  createTweet,
+  deleteTweet,
+  getHomeFeed,
+  getTweetById,
+  getTweets,
+  toggleLike,
+  tweetSchema,
+} from '@/services/tweet.service';
 
 export const createTweetHandler = async (
   req: AuthRequest,
@@ -68,6 +76,24 @@ export const getHomeFeedHandler = async (
     const userId = req.userId as string;
     const tweets = await getHomeFeed(userId);
     res.status(200).json(tweets);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const toggleLikeHandler = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.userId as string;
+    const tweetId = req.params.id as string;
+    const isLiked = await toggleLike(userId, tweetId);
+    res.status(200).json({
+      message: isLiked ? 'Tweet liked' : 'Tweet unliked',
+      liked: isLiked,
+    });
   } catch (error) {
     next(error);
   }

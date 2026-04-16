@@ -6,6 +6,7 @@ import {
   getHomeFeedHandler,
   getTweetByIdHandler,
   getTweetsHandler,
+  toggleLikeHandler,
 } from '@/controllers/tweet.controller';
 
 const router = Router();
@@ -14,6 +15,7 @@ router.get('/', getTweetsHandler);
 router.get('/feed', authenticate, getHomeFeedHandler);
 router.get('/:id', getTweetByIdHandler);
 router.post('/', authenticate, createTweetHandler);
+router.post('/:id/like', authenticate, toggleLikeHandler);
 router.delete('/:id', authenticate, deleteTweetHandler);
 
 export default router;

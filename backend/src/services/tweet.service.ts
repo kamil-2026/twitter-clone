@@ -177,3 +177,39 @@ export const getHomeFeed = async (userId: string) => {
     likesCount: tweet._count.likes,
   }));
 };
+
+export const toggleLike = async (userId: string, tweetId: string) => {
+  const tweet = await prisma.tweet.findUnique({
+    where: {
+      id: tweetId,
+    },
+  });
+
+  if (!tweet) {
+    const err = new Error('Tweet not found');
+    (err as any).status = 404;
+    throw err;
+  }
+
+  const likeId = { userId, tweetId };
+
+  const existingLike = await prisma.like.findUnique({
+    where: {
+      userId_tweetId: likeId,
+    },
+  });
+
+  if (existingLike) {
+    await prisma.like.delete({
+      where: {
+        userId_tweetId: likeId,
+      },
+    });
+    return false;
+  }
+
+  await prisma.like.create({
+    data: likeId,
+  });
+  return true;
+};
