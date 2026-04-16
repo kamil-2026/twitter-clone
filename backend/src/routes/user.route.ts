@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticate } from '@/middleware/auth.middleware';
+import { upload } from '@/middleware/upload.middleware';
 import {
   getMeHandler,
   getUserProfileHandler,
@@ -11,7 +12,17 @@ import {
 const router = Router();
 
 router.get('/me', authenticate, getMeHandler);
-router.patch('/me', authenticate, updateMeHandler);
+
+router.patch(
+  '/me',
+  authenticate,
+  upload.fields([
+    { name: 'avatar', maxCount: 1 },
+    { name: 'banner', maxCount: 1 },
+  ]),
+  updateMeHandler,
+);
+
 router.get('/search', searchUsersHandler);
 router.get('/:username', getUserProfileHandler);
 router.post('/:id/follow', authenticate, toggleFollowHandler);

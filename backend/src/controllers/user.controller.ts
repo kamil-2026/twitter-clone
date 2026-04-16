@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { NextFunction, Request, Response } from 'express';
 import type { AuthRequest } from '@/middleware/auth.middleware';
+import { processAndSaveImage } from '@/middleware/upload.middleware';
 import {
   getUserProfile,
   searchUsers,
@@ -13,8 +14,8 @@ const updateMeSchema = z.object({
   bio: z.string().max(160).optional().nullable(),
   location: z.string().max(30).optional().nullable(),
   website: z.string().url().max(100).optional().nullable().or(z.literal('')),
-  avatar: z.string().url().optional().nullable(),
-  banner: z.string().url().optional().nullable(),
+  avatar: z.string().max(255).optional().nullable(),
+  banner: z.string().max(255).optional().nullable(),
 });
 
 export const getMeHandler = async (
@@ -38,7 +39,18 @@ export const updateMeHandler = async (
 ): Promise<void> => {
   try {
     const userId = req.userId as string;
-    const input = updateMeSchema.parse(req.body);
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const updates: any = { ...req.body };
+
+    if (files?.avatar?.[0]) {
+      updates.avatar = await processAndSaveImage(files.avatar[0], 'avatar');
+    }
+
+    if (files?.banner?.[0]) {
+      updates.banner = await processAndSaveImage(files.banner[0], 'banner');
+    }
+
+    const input = updateMeSchema.parse(updates);
     const updatedUser = await updateUserProfile(userId, input);
     res.status(200).json(updatedUser);
   } catch (error) {
