@@ -3,6 +3,7 @@ import { authenticate } from '@/middleware/auth.middleware';
 import {
   createTweetHandler,
   deleteTweetHandler,
+  getHomeFeedHandler,
   getTweetByIdHandler,
   getTweetsHandler,
 } from '@/controllers/tweet.controller';
@@ -10,6 +11,7 @@ import {
 const router = Router();
 
 router.get('/', getTweetsHandler);
+router.get('/feed', authenticate, getHomeFeedHandler);
 router.get('/:id', getTweetByIdHandler);
 router.post('/', authenticate, createTweetHandler);
 router.delete('/:id', authenticate, deleteTweetHandler);

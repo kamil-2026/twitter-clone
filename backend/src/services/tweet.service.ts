@@ -128,3 +128,52 @@ export const deleteTweet = async (tweetId: string, userId: string) => {
     },
   });
 };
+
+export const getHomeFeed = async (userId: string) => {
+  const follows = await prisma.follow.findMany({
+    where: {
+      followerId: userId,
+    },
+    select: {
+      followingId: true,
+    },
+  });
+
+  const followingIds = follows.map((f) => f.followingId);
+
+  const tweets = await prisma.tweet.findMany({
+    where: {
+      userId: {
+        in: [...followingIds, userId],
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      id: true,
+      content: true,
+      createdAt: true,
+      user: {
+        select: {
+          id: true,
+          username: true,
+          avatar: true,
+        },
+      },
+      _count: {
+        select: {
+          likes: true,
+        },
+      },
+    },
+  });
+
+  return tweets.map((tweet) => ({
+    id: tweet.id,
+    content: tweet.content,
+    createdAt: tweet.createdAt,
+    user: tweet.user,
+    likesCount: tweet._count.likes,
+  }));
+};

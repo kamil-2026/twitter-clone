@@ -1,12 +1,6 @@
 import type { NextFunction, Response } from 'express';
 import type { AuthRequest } from '@/middleware/auth.middleware';
-import {
-  createTweet,
-  deleteTweet,
-  getTweetById,
-  getTweets,
-  tweetSchema,
-} from '@/services/tweet.service';
+import { createTweet, deleteTweet, getHomeFeed, getTweetById, getTweets, tweetSchema, } from '@/services/tweet.service';
 
 export const createTweetHandler = async (
   req: AuthRequest,
@@ -60,6 +54,20 @@ export const deleteTweetHandler = async (
     const { id } = req.params;
     await deleteTweet(id as string, userId);
     res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getHomeFeedHandler = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.userId as string;
+    const tweets = await getHomeFeed(userId);
+    res.status(200).json(tweets);
   } catch (error) {
     next(error);
   }
