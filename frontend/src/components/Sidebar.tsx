@@ -1,8 +1,23 @@
 import { Link } from 'react-router-dom';
 import { Feather, Home, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Sidebar() {
+  const { token } = useAuth();
+
+  const getUsername = () => {
+    try {
+      if (!token) return null;
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.username;
+    } catch {
+      return null;
+    }
+  };
+
+  const username = getUsername();
+
   return (
     <aside className="sticky top-0 h-screen w-[72px] flex-col items-center p-2 md:w-[275px] md:items-start md:p-4">
       <div className="flex flex-col gap-2">
@@ -21,7 +36,7 @@ export default function Sidebar() {
             <span className="hidden text-xl md:block">Home</span>
           </Link>
           <Link
-            to="/profile"
+            to={username ? `/${username}` : '/login'}
             className="flex size-[52px] items-center justify-center rounded-full transition duration-200 hover:bg-white/10 md:size-auto md:justify-start md:gap-4 md:px-3 md:py-3"
           >
             <User size={28} />

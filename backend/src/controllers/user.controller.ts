@@ -79,7 +79,7 @@ export const getUserProfileHandler = async (
 ): Promise<void> => {
   try {
     const { username } = req.params;
-    const profile = await getUserProfile(username as string);
+    const profile = await getUserProfile(username as string, req.userId);
     res.status(200).json(profile);
   } catch (error) {
     next(error);

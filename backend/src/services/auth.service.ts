@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import {z} from 'zod';
+import { z } from 'zod';
 import prisma from '@/lib/db';
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
@@ -12,17 +12,17 @@ if (!JWT_SECRET) {
 export const registerSchema = z.object({
   email: z.string({ message: 'Email is required' }).email('Invalid email format'),
   username: z
-      .string({ message: 'Username is required' })
-      .min(4, 'Username must be at least 4 characters')
-      .max(15, 'Username cannot exceed 15 characters')
-      .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
+    .string({ message: 'Username is required' })
+    .min(4, 'Username must be at least 4 characters')
+    .max(15, 'Username cannot exceed 15 characters')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
   name: z
-      .string({ message: 'Name is required' })
-      .min(1, 'Name is required')
-      .max(50, 'Name cannot exceed 50 characters'),
+    .string({ message: 'Name is required' })
+    .min(1, 'Name is required')
+    .max(50, 'Name cannot exceed 50 characters'),
   password: z
-      .string({ message: 'Password is required' })
-      .min(8, 'Password must be at least 8 characters'),
+    .string({ message: 'Password is required' })
+    .min(8, 'Password must be at least 8 characters'),
 });
 
 export const loginSchema = z.object({
@@ -75,7 +75,9 @@ export const register = async (data: RegisterInput) => {
     },
   });
 
-  const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: '1d' });
+  const token = jwt.sign({ userId: newUser.id, username: newUser.username }, JWT_SECRET, {
+    expiresIn: '1d',
+  });
 
   return {
     user: newUser,
@@ -86,10 +88,7 @@ export const register = async (data: RegisterInput) => {
 export const login = async (data: LoginInput) => {
   const user = await prisma.user.findFirst({
     where: {
-      OR: [
-        { email: data.identifier },
-        { username: data.identifier },
-      ],
+      OR: [{ email: data.identifier }, { username: data.identifier }],
     },
   });
 
@@ -99,7 +98,9 @@ export const login = async (data: LoginInput) => {
     throw err;
   }
 
-  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1d' });
+  const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, {
+    expiresIn: '1d',
+  });
 
   return {
     user: {

@@ -1,11 +1,11 @@
-import {ZodError} from 'zod';
-import type {NextFunction, Request, Response} from 'express';
+import { ZodError } from 'zod';
+import type { NextFunction, Request, Response } from 'express';
 
 export const globalErrorHandler = (
-    err: any,
-    req: Request,
-    res: Response,
-    next: NextFunction,
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ): void => {
   if (err instanceof ZodError) {
     res.status(400).json({
@@ -30,8 +30,8 @@ export const globalErrorHandler = (
 
   res.status(statusCode).json({
     message:
-        statusCode === 500 && isProduction
-            ? 'Internal Server Error'
-            : err.message || 'Internal Server Error',
+      statusCode === 500 && isProduction
+        ? 'Internal Server Error'
+        : err.message || 'Internal Server Error',
   });
 };

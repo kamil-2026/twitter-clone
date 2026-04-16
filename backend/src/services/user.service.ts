@@ -50,7 +50,7 @@ export const searchUsers = async (query: string, limit = 10) => {
   }));
 };
 
-export const getUserProfile = async (identifier: string) => {
+export const getUserProfile = async (identifier: string, currentUserId?: string) => {
   const user = await prisma.user.findFirst({
     where: {
       OR: [{ id: identifier }, { username: identifier }],
@@ -73,18 +73,12 @@ export const getUserProfile = async (identifier: string) => {
         },
       },
       tweets: {
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { createdAt: 'desc' },
         select: {
           id: true,
           content: true,
           createdAt: true,
-          _count: {
-            select: {
-              likes: true,
-            },
-          },
+          _count: { select: { likes: true } },
         },
       },
     },
@@ -94,6 +88,19 @@ export const getUserProfile = async (identifier: string) => {
     const err = new Error('User not found');
     (err as any).status = 404;
     throw err;
+  }
+
+  let isFollowing = false;
+  if (currentUserId && currentUserId !== user.id) {
+    const follow = await prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: currentUserId,
+          followingId: user.id,
+        },
+      },
+    });
+    isFollowing = !!follow;
   }
 
   return {
@@ -106,6 +113,7 @@ export const getUserProfile = async (identifier: string) => {
     location: user.location,
     website: user.website,
     joinedAt: user.createdAt,
+    isFollowing,
     stats: {
       followers: user._count.followers,
       following: user._count.following,
