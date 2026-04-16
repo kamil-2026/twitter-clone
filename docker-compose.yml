@@ -21,9 +21,18 @@ services:
       JWT_SECRET: ${JWT_SECRET}
     volumes:
       - ./backend:/app
-      - node_modules:/app/node_modules
+      - backend_modules:/app/node_modules
     depends_on:
       - postgres
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    volumes:
+      - ./frontend:/app
+      - frontend_modules:/app/node_modules
+    depends_on:
+      - backend
 
   nginx:
     image: nginx
@@ -33,6 +42,7 @@ services:
       - "80:80"
     environment:
       - BACKEND_PORT=${BACKEND_PORT}
+      - FRONTEND_PORT=${FRONTEND_PORT}
     volumes:
       - ./nginx/default.conf:/etc/nginx/templates/default.conf.template:ro
       - ./backend/uploads:/var/www/uploads:ro
@@ -41,4 +51,5 @@ services:
 
 volumes:
   postgres_data:
-  node_modules:
+  backend_modules:
+  frontend_modules:
