@@ -1,5 +1,24 @@
 import prisma from '@/lib/db';
 
+export const updateUserProfile = async (userId: string, data: any) => {
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data,
+    select: {
+      id: true,
+      username: true,
+      name: true,
+      avatar: true,
+      banner: true,
+      bio: true,
+      location: true,
+      website: true,
+    },
+  });
+};
+
 export const searchUsers = async (query: string, limit = 10) => {
   const users = await prisma.user.findMany({
     where: {

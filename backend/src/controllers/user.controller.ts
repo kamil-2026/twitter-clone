@@ -1,7 +1,50 @@
 import { z } from 'zod';
 import type { NextFunction, Request, Response } from 'express';
 import type { AuthRequest } from '@/middleware/auth.middleware';
-import { getUserProfile, searchUsers, toggleFollow } from '@/services/user.service';
+import {
+  getUserProfile,
+  searchUsers,
+  toggleFollow,
+  updateUserProfile,
+} from '@/services/user.service';
+
+const updateMeSchema = z.object({
+  name: z.string().min(1).max(50).optional(),
+  bio: z.string().max(160).optional().nullable(),
+  location: z.string().max(30).optional().nullable(),
+  website: z.string().url().max(100).optional().nullable().or(z.literal('')),
+  avatar: z.string().url().optional().nullable(),
+  banner: z.string().url().optional().nullable(),
+});
+
+export const getMeHandler = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.userId as string;
+    const profile = await getUserProfile(userId);
+    res.status(200).json(profile);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateMeHandler = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.userId as string;
+    const input = updateMeSchema.parse(req.body);
+    const updatedUser = await updateUserProfile(userId, input);
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const searchUsersHandler = async (
   req: Request,
