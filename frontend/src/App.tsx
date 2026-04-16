@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import Home from '@/pages/Home';
 import Register from '@/pages/Register.tsx';
 import Login from '@/pages/Login.tsx';
+import MainLayout from '@/components/layout/MainLayout.tsx';
 
 export default function App() {
   return (
@@ -17,7 +18,9 @@ export default function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <Home />
+                <MainLayout>
+                  <Home />
+                </MainLayout>
               </ProtectedRoute>
             }
           />
