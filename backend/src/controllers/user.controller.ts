@@ -1,6 +1,20 @@
 import type { NextFunction, Response } from 'express';
 import type { AuthRequest } from '@/middleware/auth.middleware';
-import { toggleFollow } from '@/services/user.service';
+import { getUserProfile, toggleFollow } from '@/services/user.service';
+
+export const getUserProfileHandler = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { username } = req.params;
+    const profile = await getUserProfile(username as string);
+    res.status(200).json(profile);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const toggleFollowHandler = async (
   req: AuthRequest,

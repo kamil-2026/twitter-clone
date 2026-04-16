@@ -1,5 +1,65 @@
 import prisma from '@/lib/db';
 
+export const getUserProfile = async (identifier: string) => {
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [{ id: identifier }, { username: identifier }],
+    },
+    select: {
+      id: true,
+      username: true,
+      avatar: true,
+      createdAt: true,
+      _count: {
+        select: {
+          followers: true,
+          following: true,
+          tweets: true,
+        },
+      },
+      tweets: {
+        orderBy: {
+          createdAt: 'desc',
+        },
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          _count: {
+            select: {
+              likes: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    const err = new Error('User not found');
+    (err as any).status = 404;
+    throw err;
+  }
+
+  return {
+    id: user.id,
+    username: user.username,
+    avatar: user.avatar,
+    joinedAt: user.createdAt,
+    stats: {
+      followers: user._count.followers,
+      following: user._count.following,
+      tweetCount: user._count.tweets,
+    },
+    tweets: user.tweets.map((t) => ({
+      id: t.id,
+      content: t.content,
+      createdAt: t.createdAt,
+      likesCount: t._count.likes,
+    })),
+  };
+};
+
 export const toggleFollow = async (followerId: string, followingId: string) => {
   if (followerId === followingId) {
     const err = new Error("You can't follow yourself");
