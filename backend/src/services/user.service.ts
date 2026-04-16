@@ -1,5 +1,34 @@
 import prisma from '@/lib/db';
 
+export const searchUsers = async (query: string, limit = 10) => {
+  const users = await prisma.user.findMany({
+    where: {
+      username: {
+        contains: query,
+        mode: 'insensitive',
+      },
+    },
+    take: limit,
+    select: {
+      id: true,
+      username: true,
+      avatar: true,
+      _count: {
+        select: {
+          followers: true,
+        },
+      },
+    },
+  });
+
+  return users.map((u) => ({
+    id: u.id,
+    username: u.username,
+    avatar: u.avatar,
+    followers: u._count.followers,
+  }));
+};
+
 export const getUserProfile = async (identifier: string) => {
   const user = await prisma.user.findFirst({
     where: {
